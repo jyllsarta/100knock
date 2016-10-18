@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""06. 集合
+"paraparaparadise"と"paragraph"に含まれる文字bi-gramの
+集合を，それぞれ, XとYとして求め，XとYの和集合，積集合，
+差集合を求めよ．さらに，'se'というbi-gramが
+XおよびYに含まれるかどうかを調べよ．
+"""
 
 def toNgram(iterable,N):
     """iterableをN-Gramのリストにして返す
@@ -11,9 +17,6 @@ def toNgram(iterable,N):
     return dest
 
 if __name__ == "__main__":
-    """06. 集合
-"paraparaparadise"と"paragraph"に含まれる文字bi-gramの集合を，それぞれ, XとYとして求め，XとYの和集合，積集合，差集合を求めよ．さらに，'se'というbi-gramがXおよびYに含まれるかどうかを調べよ．
-    """
 
     parapara = "paraparaparadise"
     paragura = "paragraph"
