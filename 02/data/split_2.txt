@@ -1,0 +1,4 @@
+        elif i == N-1:
+            new_lines = lines[i*n:i*n+n+a]
+        print("".join(new_lines))
+        print("-----------------------------------------")
