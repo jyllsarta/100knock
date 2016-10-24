@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""21. カテゴリ名を含む行を抽出
-記事中でカテゴリ名を宣言している行を抽出せよ．
+"""
+22. カテゴリ名の抽出
+記事のカテゴリ名を（行単位ではなく名前で）抽出せよ．
 """
 
 import re
@@ -13,8 +14,8 @@ if __name__ == "__main__":
     article = raw.split("\n")
     category = []
     for line in article:
-        match = re.match("\[\[Category:.*",line)
+        match = re.match("\[\[Category:(.+?)(\|.+?)??\]\]",line)
         if match:
-           category.append(match.group(0))
+           category.append(match.group(1))
 
     print(category)
