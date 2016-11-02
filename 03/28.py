@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""27. 内部リンクの除去
-26の処理に加えて，テンプレートの値から
-MediaWikiの内部リンクマークアップを除去し，
-テキストに変換せよ（参考: マークアップ早見表）．
+"""28. MediaWikiマークアップの除去
+27の処理に加えて，テンプレートの値から
+MediaWikiマークアップを可能な限り除去し，
+国の基本情報を整形せよ．
 """
 
 import re
@@ -11,13 +11,22 @@ def removeMarkup(src):
     """入力から強調/内部リンクマークアップを除いて返す
     """
     #強調を削除
-    src = re.sub("''+","",src)
+    text = re.sub("''+","",src)
 
     #内部リンクを削除
-    result = re.sub("\[\[.*?\|?(.+?)\]\]",lambda x:x.group(1),src)
+    text = re.sub("\[\[.*?\|?(.+?)\]\]",lambda x:x.group(1),text)
+
+    #{{lang|**|ほげ}}を削除
+    text = re.sub("{{lang\|..\|(.*?)}}",lambda x:x.group(1),text)
+
+    #<ref />を削除
+    text = re.sub("<ref .*?/>","",text)
+
+    #<ref>.*</ref>を削除
+    text = re.sub("<ref.*?>.*?</ref>","",text)
     
 
-    return result
+    return text
 
 
 if __name__ == "__main__":
