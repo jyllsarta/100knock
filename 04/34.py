@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""33. サ変名詞
-サ変接続の名詞をすべて抽出せよ．
+"""34. 「AのB」
+2つの名詞が「の」で連結されている名詞句を抽出せよ．
 """
 
 def toKeitaisoMap(line):
@@ -36,8 +36,12 @@ if __name__ == "__main__":
 
     dest = []
     for sentence in neko:
-        for word in sentence:
-            if word["pos"] == "サ変接続":
-                dest.append(word)
+        if len(sentence) < 3:
+            continue
+        for w1,w2,w3 in zip(sentence,sentence[1:],sentence[2:]):
+            #名詞 の 名詞 なら:
+            if w1["base"]=="名詞" and w2["surface"]=="の" and w3["base"]=="名詞":
+                dest.append(w1["surface"] + w2["surface"] + w3["surface"])
 
     print(dest)
+

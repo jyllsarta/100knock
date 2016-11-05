@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""33. サ変名詞
-サ変接続の名詞をすべて抽出せよ．
+"""35. 名詞の連接
+名詞の連接（連続して出現する名詞）を最長一致で抽出せよ．
 """
 
 def toKeitaisoMap(line):
@@ -36,8 +36,15 @@ if __name__ == "__main__":
 
     dest = []
     for sentence in neko:
+        rensetu_noun = []
         for word in sentence:
-            if word["pos"] == "サ変接続":
-                dest.append(word)
-
+            if word["base"] =="名詞":
+                rensetu_noun.append(word)
+            else:
+                if len(rensetu_noun) >= 2:
+                    dest.append(rensetu_noun)
+                rensetu_noun = []
+        if len(rensetu_noun) >= 2:
+            dest.append(rensetu_noun)
     print(dest)
+
