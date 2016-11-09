@@ -1,9 +1,32 @@
 # -*- coding: utf-8 -*-
-"""43. 名詞を含む文節が動詞を含む文節に係るものを抽出
-名詞を含む文節が，動詞を含む文節に係るとき，
-これらをタブ区切り形式で抽出せよ．
-ただし，句読点などの記号は出力しないようにせよ．
+"""45. 動詞の格パターンの抽出
+今回用いている文章をコーパスと見なし，
+日本語の述語が取りうる格を調査したい． 
+動詞を述語，動詞に係っている文節の助詞を格と考え，
+述語と格をタブ区切り形式で出力せよ． ただし，
+出力は以下の仕様を満たすようにせよ．
+
+動詞を含む文節において，最左の動詞の基本形を述語とする
+述語に係る助詞を格とする
+述語に係る助詞（文節）が複数あるときは，
+すべての助詞をスペース区切りで辞書順に並べる
+「吾輩はここで始めて人間というものを見た」という例文
+（neko.txt.cabochaの8文目）を考える． この文は「始める」と
+「見る」の２つの動詞を含み，「始める」に係る文節は「ここで」，
+「見る」に係る文節は「吾輩は」と「ものを」と
+解析された場合は，次のような出力になるはずである．
+
+始める  で
+見る    は を
+
+このプログラムの出力をファイルに保存し，以下の事項をUNIXコマンドを用いて確認せよ．
+
+コーパス中で頻出する述語と格パターンの組み合わせ
+「する」「見る」「与える」という動詞の格パターン
+（コーパス中で出現頻度の高い順に並べよ）
 """
+
+import pydot
 
 class Morph:
     """形態素"""
@@ -47,6 +70,23 @@ class Chunk:
         """動詞を持つ?"""
         return (True in [m.base == "動詞" for m in self.morphs])
 
+    def getFirstVerb(self):
+        """最初の同士の基本形を返す"""
+        for m in self.morphs:
+            if m.base == "動詞":
+                return m.orig
+        print("動詞なかったよ? chunk={}".format(self.toString()))
+        return ""
+
+    def getLastJoshi(self):
+        """最後の助詞を返す"""
+        for m in self.morphs[::-1]:
+            if m.base == "助詞":
+                return m.surface
+        print("助詞なかったよ? chunk={}".format(self.toString()))
+        return None
+
+
 def fillSourceList(s):
     """sの文節ごとのかかり先を埋める"""
     for idx,chunk in enumerate(s):
@@ -87,6 +127,21 @@ def readCaboChaFile(filepath):
             line = f.readline()
     return text
 
+def extractCasePattern(sentence):
+    """格パターンを抽出"""
+    s = sentence
+    casePatterns = []
+    for i in range(len(s)):
+        if s[i].hasVerb():
+            firstVerb = s[i].getFirstVerb()
+            joshiList = []
+            for src in s[i].srcs:
+                joshi = s[src].getLastJoshi()
+                if joshi is not None:
+                    joshiList.append(joshi)
+            if len(joshiList) > 0:
+                casePatterns.append((firstVerb,joshiList))
+    return casePatterns
 
 if __name__ == "__main__":
 
@@ -94,8 +149,12 @@ if __name__ == "__main__":
     cabocha = readCaboChaFile(filepath)
 
     #表示したい文を選択
-    s = cabocha[11]
+    s = cabocha[7]
+    pt = extractCasePattern(s)
+    for p in pt:
+        print("{}\t : {}".format(p[0],"\t".join(p[1])))
 
-    for i in range(len(s)):
-        if s[i].hasNoun() and s[s[i].dst].hasVerb():
-            print("{} -> {}".format(s[i].toString(depressPunctuation=True),s[s[i].dst].toString(depressPunctuation=True)))
+
+
+
+    

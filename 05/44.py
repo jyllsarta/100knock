@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-"""43. 名詞を含む文節が動詞を含む文節に係るものを抽出
-名詞を含む文節が，動詞を含む文節に係るとき，
-これらをタブ区切り形式で抽出せよ．
-ただし，句読点などの記号は出力しないようにせよ．
+"""44. 係り受け木の可視化
+与えられた文の係り受け木を有向グラフとして可視化せよ．
+可視化には，係り受け木をDOT言語に変換し，
+Graphvizを用いるとよい．
+また，Pythonから有向グラフを直接的に可視化するには，pydotを使うとよい．
 """
+
+import pydot
 
 class Morph:
     """形態素"""
@@ -55,6 +58,18 @@ def fillSourceList(s):
             continue
         s[dst].addSource(idx)
 
+def toDOTLang(sentence):
+    """sentenceをDOT言語に変換する"""
+    header = """digraph G {
+"""
+    content = []
+    s = sentence
+    for i in range(len(sentence)):
+        graph = '    "{}" -> "{}";'.format(s[i].toString(), s[s[i].dst].toString())
+        content.append(graph)
+    footer = "}\n"
+    return header + "\n".join(content) + footer
+
 def readCaboChaFile(filepath):
     text = []
     sentence = []
@@ -90,12 +105,17 @@ def readCaboChaFile(filepath):
 
 if __name__ == "__main__":
 
-    filepath = "05/data/neko.txt.cabocha"
+    filepath = "data/neko.txt.cabocha"
     cabocha = readCaboChaFile(filepath)
 
     #表示したい文を選択
     s = cabocha[11]
 
-    for i in range(len(s)):
-        if s[i].hasNoun() and s[s[i].dst].hasVerb():
-            print("{} -> {}".format(s[i].toString(depressPunctuation=True),s[s[i].dst].toString(depressPunctuation=True)))
+    dot = toDOTLang(s)
+    print(dot)
+    viz = pydot.graph_from_dot_data(dot)
+    viz[0].write_png("data/graph.png")
+    ...
+    
+
+    
