@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
-"""46. 動詞の格フレーム情報の抽出
-45のプログラムを改変し，述語と格パターンに続けて項（述語に係っている文節そのもの）
-をタブ区切り形式で出力せよ．45の仕様に加えて，以下の仕様を満たすようにせよ．
+"""47. 機能動詞構文のマイニング
+動詞のヲ格にサ変接続名詞が入っている場合のみに着目したい．
+46のプログラムを以下の仕様を満たすように改変せよ．
 
-項は述語に係っている文節の単語列とする（末尾の助詞を取り除く必要はない）
-述語に係る文節が複数あるときは，助詞と同一の基準・順序でスペース区切りで並べる
-「吾輩はここで始めて人間というものを見た」という例文（neko.txt.cabochaの8文目）を考える． 
-この文は「始める」と「見る」の２つの動詞を含み，「始める」に係る文節は「ここで」，
-「見る」に係る文節は「吾輩は」と「ものを」と解析された場合は，次のような出力になるはずである．
+「サ変接続名詞+を（助詞）」で構成される文節が動詞に係る場合のみを対象とする
+述語は「サ変接続名詞+を+動詞の基本形」とし，文節中に複数の動詞があるときは，最左の動詞を用いる
+述語に係る助詞（文節）が複数あるときは，すべての助詞をスペース区切りで辞書順に並べる
+述語に係る文節が複数ある場合は，すべての項をスペース区切りで並べる（助詞の並び順と揃えよ）
+例えば「別段くるにも及ばんさと、主人は手紙に返事をする。」という文から，以下の出力が得られるはずである．
 
-始める  で      ここで
-見る    は を   吾輩は ものを
-始める  で
-見る    は を
+返事をする      と に は        及ばんさと 手紙に 主人は
 
 このプログラムの出力をファイルに保存し，以下の事項をUNIXコマンドを用いて確認せよ．
-
-コーパス中で頻出する述語と格パターンの組み合わせ
-「する」「見る」「与える」という動詞の格パターン
-（コーパス中で出現頻度の高い順に並べよ）
+    コーパス中で頻出する述語（サ変接続名詞+を+動詞）
+    コーパス中で頻出する述語と助詞パターン
 """
-
-import pydot
 
 class Morph:
     """形態素"""
@@ -78,7 +71,7 @@ class Chunk:
         for m in self.morphs[::-1]:
             if m.base == "助詞":
                 return m.surface
-        print("助詞なかったよ? chunk={}".format(self.toString()))
+        #print("助詞なかったよ? chunk={}".format(self.toString()))
         return None
 
 
@@ -127,16 +120,22 @@ def extractCasePattern(sentence):
     s = sentence
     casePatterns = []
     for i in range(len(s)):
-        if s[i].hasVerb():
-            firstVerb = s[i].getFirstVerb()
+        hasSahen = False
+        morphs = s[i].morphs
+        for j in range(1,len(morphs)):
+            if morphs[j].surface == "を" and morphs[j-1].base == "名詞" and morphs[j-1].pos == "サ変接続":
+                hasSahen = True
+                targetnoun = morphs[j-1].surface
+        if hasSahen and s[s[i].dst].hasVerb():
+            firstVerb = s[s[i].dst].getFirstVerb()
             joshiList = []
-            for src in s[i].srcs:
+            for src in s[s[i].dst].srcs:
                 joshi = s[src].getLastJoshi()
                 surface = s[src].toString()
-                if joshi is not None:
+                if joshi is not None and joshi != "を":
                     joshiList.append((joshi,surface))
             if len(joshiList) > 0:
-                casePatterns.append((firstVerb,joshiList))
+                casePatterns.append((targetnoun+"を"+firstVerb,joshiList))
     return casePatterns
 
 if __name__ == "__main__":
