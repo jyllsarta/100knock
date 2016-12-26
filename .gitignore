@@ -3,3 +3,6 @@
 100knock.sln
 100knock-Sylphid.pyproj
 .gitattributes
+07/data/artist.json.gz
+100knock-Sylphid-2.pyproj
+test-output/round-table.gv
